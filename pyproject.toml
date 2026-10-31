@@ -1,0 +1,27 @@
+[project]
+name = "events-agregator"
+version = "0.1.0"
+description = "Backend-агрегатор для Events Provider API"
+readme = "README.md"
+authors = [
+    { name = "NaceXD", email = "zxnacexz@bk.ru" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.162.0",
+    "httpx>=0.28.1",
+    "pydantic-settings>=2.16.2",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
