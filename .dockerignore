@@ -1,0 +1,7 @@
+.gitignore
+.venv/
+.git/
+.ruff_cache/
+__pycache__/
+.idea/
+.vscode/
