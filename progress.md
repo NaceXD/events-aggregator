@@ -15,7 +15,11 @@
     - [+] Написание класса `EventsProviderClient`
     - [+] Покрытие клиента тестами (pytest + unittest.mock)
 
-- [ ] Этап 2. EventsPaginator + тесты
+- [+] Этап 2. EventsPaginator + тесты
+    - [+] Парсинг URL (извлечение cursor из поля next)
+    - [+] Написание класса EventsPaginator (__iter__, __next__)
+    - [+] Покрытие Paginator тестами (pytest + unittest.mock)
+
 - [ ] Этап 3. БД + репозитории + миграции
 - [ ] Этап 4. Синхронизация + trigger + воркер
 - [ ] Этап 5. Events endpoints
