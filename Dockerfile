@@ -14,6 +14,8 @@ RUN uv sync --frozen --no-dev
 
 COPY src/ ./src/
 COPY run.sh ./
+COPY alembic.ini ./
+COPY migrations/ ./migrations/
 
 RUN chmod +x run.sh
 
