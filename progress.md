@@ -21,6 +21,12 @@
     - [+] Покрытие Paginator тестами (pytest + unittest.mock)
 
 - [ ] Этап 3. БД + репозитории + миграции
+    - [+] Установка SQLAlchemy, asyncpg, alembic
+    - [+] Настройка подключения к БД (db.py)
+    - [+] Описание моделей (Place, Event, Ticket, SyncState)
+    - [+] Настройка Alembic (миграции)
+    - [ ] Написание репозиториев (паттерн Repository)
+
 - [ ] Этап 4. Синхронизация + trigger + воркер
 - [ ] Этап 5. Events endpoints
 - [ ] Этап 6. Tickets endpoints
