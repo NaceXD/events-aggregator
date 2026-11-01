@@ -14,6 +14,11 @@ from src.services import EventsPaginator, EventsProviderClient
 logger = logging.getLogger(__name__)
 
 
+def parse_date_fields(data: dict, fields: list[str]) -> None:
+    for field in fields:
+        data[field] = datetime.fromisoformat(data[field])
+
+
 class SyncUsecase:
     def __init__(
         self,
@@ -37,13 +42,22 @@ class SyncUsecase:
             max_changed_at = None
         logger.info("Синхронизация начата. Дата изменений: %s", changed_at)
         paginator = EventsPaginator(client=self.client, changed_at=changed_at)
-
+        place_date_fields = ["changed_at", "created_at"]
+        event_date_fields = [
+            "event_time",
+            "registration_deadline",
+            "changed_at",
+            "created_at",
+            "status_changed_at",
+        ]
         async for event_data in paginator:
             place_data = event_data.pop("place")
+            parse_date_fields(place_data, place_date_fields)
+            parse_date_fields(event_data, event_date_fields)
             await self.places.upsert(place_data=place_data)
             event_data["place_id"] = place_data["id"]
             await self.events.upsert(event_data=event_data)
-            event_changed_at = datetime.fromisoformat(event_data["changed_at"])
+            event_changed_at = event_data["changed_at"]
             if max_changed_at is None or event_changed_at > max_changed_at:
                 max_changed_at = event_changed_at
         logger.info("Синхронизация завершена. Последняя дата: %s", max_changed_at)
