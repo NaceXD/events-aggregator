@@ -1,2 +1,5 @@
-from .events_provider import EventsProviderClient  # noqa: F401
-from .paginator import EventsPaginator  # noqa: F401
+from .events_provider import EventsProviderClient
+from .paginator import EventsPaginator
+from .usecases import SyncUsecase, create_sync_usecase
+
+__all__ = ["EventsProviderClient", "EventsPaginator", "SyncUsecase", "create_sync_usecase"]
