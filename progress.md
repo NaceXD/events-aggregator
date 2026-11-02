@@ -20,20 +20,28 @@
     - [+] Написание класса EventsPaginator (__iter__, __next__)
     - [+] Покрытие Paginator тестами (pytest + unittest.mock)
 
-- [ ] Этап 3. БД + репозитории + миграции
+- [+] Этап 3. БД + репозитории + миграции
     - [+] Установка SQLAlchemy, asyncpg, alembic
     - [+] Настройка подключения к БД (db.py)
     - [+] Описание моделей (Place, Event, Ticket, SyncState)
     - [+] Настройка Alembic (миграции)
     - [+] Написание репозиториев (паттерн Repository)
 
-- [ ] Этап 4. Синхронизация + trigger + воркер
+- [+] Этап 4. Синхронизация + trigger + воркер
     - [+] Написание `SyncUsecase` (бизнес-логика получения и сохранения данных)
     - [+] Создание эндпоинта `POST /api/sync/trigger` для ручного запуска
     - [+] Реализация фонового воркера в `lifespan` (запуск раз в сутки)
     - [+] Логирование процесса синхронизации и ошибок
 
 - [ ] Этап 5. Events endpoints
+     - [+] Репозиторий: добавить `count` в `EventRepository`
+    - [+] Pydantic-схемы для событий (Event, Place, PaginatedResponse)
+    - [+] Usecase: получение списка событий с пагинацией и фильтром `date_from`
+    - [+] Эндпоинт `GET /api/events` (list, пагинация, `count`, `next`, `previous`)
+    - [ ] Usecase: получение деталей события по ID
+    - [ ] Эндпоинт `GET /api/events/{event_id}` (detail)
+    - [ ] Эндпоинт `GET /api/events/{event_id}/seats` (с кэшем 30 сек в памяти)
+
 - [ ] Этап 6. Tickets endpoints
 - [ ] Этап 7. Полировка
 
