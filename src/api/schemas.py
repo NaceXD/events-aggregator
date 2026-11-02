@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class PlaceOut(BaseModel):
@@ -38,3 +38,15 @@ class EventsListResponse(BaseModel):
     next: str | None
     previous: str | None
     results: list[EventOut]
+
+
+class TicketCreate(BaseModel):
+    event_id: uuid.UUID
+    first_name: str
+    last_name: str
+    email: EmailStr
+    seat: str
+
+
+class TicketResponse(BaseModel):
+    ticket_id: str

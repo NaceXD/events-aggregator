@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import Event, Place, SyncState, Ticket
@@ -67,6 +67,10 @@ class SqlAlchemyTicketRepository:
         query = select(Ticket).where(Ticket.ticket_id == ticket_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def delete(self, ticket_id: str) -> None:
+        await self.session.execute(delete(Ticket).where(Ticket.ticket_id == ticket_id))
+        await self.session.commit()
 
 
 class SqlAlchemySyncStateRepository:
