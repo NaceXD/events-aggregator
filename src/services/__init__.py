@@ -1,8 +1,10 @@
 from .events_provider import EventsProviderClient
 from .paginator import EventsPaginator
 from .usecases import (
+    GetEventUsecase,
     ListEventsUsecase,
     SyncUsecase,
+    create_get_event_usecase,
     create_list_events_usecase,
     create_sync_usecase,
 )
@@ -10,8 +12,10 @@ from .usecases import (
 __all__ = [
     "EventsProviderClient",
     "EventsPaginator",
+    "GetEventUsecase",
     "ListEventsUsecase",
     "SyncUsecase",
+    "create_get_event_usecase",
     "create_list_events_usecase",
     "create_sync_usecase",
 ]

@@ -38,8 +38,8 @@
     - [+] Pydantic-схемы для событий (Event, Place, PaginatedResponse)
     - [+] Usecase: получение списка событий с пагинацией и фильтром `date_from`
     - [+] Эндпоинт `GET /api/events` (list, пагинация, `count`, `next`, `previous`)
-    - [ ] Usecase: получение деталей события по ID
-    - [ ] Эндпоинт `GET /api/events/{event_id}` (detail)
+    - [+] Usecase: получение деталей события по ID
+    - [+] Эндпоинт `GET /api/events/{event_id}` (detail)
     - [ ] Эндпоинт `GET /api/events/{event_id}/seats` (с кэшем 30 сек в памяти)
 
 - [ ] Этап 6. Tickets endpoints
@@ -51,4 +51,3 @@
 ## Заметки
 - Выбран стек: FastAPI + uv + ruff + httpx (async).
 - В `run.sh` используется флаг `uv run --no-sync`. Без этого Kubenetes не запускается так как нет доступа в интеренет и `uv` не может проверить/скачать зависимости при старте
-- В `run.sh` добавил флаг `|| true` чтобы скрипт не падал если бд еше инициализируется
