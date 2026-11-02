@@ -11,6 +11,7 @@ from src.repositories import (
 )
 from src.repositories.protocols import EventRepository, PlaceRepository, SyncStateRepository
 from src.services import EventsPaginator, EventsProviderClient
+from src.services.exceptions import EventNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -116,3 +117,20 @@ class ListEventsUsecase:
 def create_list_events_usecase(db: AsyncSession) -> ListEventsUsecase:
     events_repo = SqlAlchemyEventRepository(session=db)
     return ListEventsUsecase(events=events_repo)
+
+
+class GetEventUsecase:
+    def __init__(self, events: EventRepository):
+        self.events = events
+
+    async def do(self, event_id: str):
+        event = await self.events.get(event_id=event_id)
+        if event is None:
+            raise EventNotFoundError
+
+        return event
+
+
+def create_get_event_usecase(db: AsyncSession) -> GetEventUsecase:
+    events_repo = SqlAlchemyEventRepository(session=db)
+    return GetEventUsecase(events=events_repo)
