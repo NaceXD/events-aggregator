@@ -4,10 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.usecases import create_get_event_seats_usecase
 from src.api.schemas import EventDetail, EventsListResponse
 from src.db.session import get_db
-from src.services import create_get_event_usecase, create_list_events_usecase
+from src.services import (
+    create_get_event_seats_usecase,
+    create_get_event_usecase,
+    create_list_events_usecase,
+)
 from src.services.exceptions import EventNotFoundError, EventNotPublishedError
 
 router = APIRouter()
