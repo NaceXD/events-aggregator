@@ -1,3 +1,5 @@
+"""Простой in-memmory TTL-кэш для мест"""
+
 import time
 
 

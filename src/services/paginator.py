@@ -1,9 +1,15 @@
+"""Реализует асинхронный итератор для постраничного обхода внешнего API"""
+
 import urllib.parse
 
 from src.services import EventsProviderClient
 
 
 def extract_cursor(next_url: str | None) -> str | None:
+    """
+    Вспомогательная функция: Извлекает значение параметра cursor из
+    полного URL следующей страницы, который возвращает API
+    """
     if next_url is None:
         return None
     query = urllib.parse.urlparse(next_url).query
@@ -12,6 +18,11 @@ def extract_cursor(next_url: str | None) -> str | None:
 
 
 class EventsPaginator:
+    """
+    Асинхронный итератор для обхода всех страниц событий.
+    Скрывает сложность cursor-based пагинации и пустых страниц
+    """
+
     def __init__(self, client: EventsProviderClient, changed_at: str = "2000-01-01"):
         self.client = client
         self.changed_at = changed_at

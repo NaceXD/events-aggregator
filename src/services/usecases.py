@@ -31,11 +31,21 @@ seats_cache = TtlCache()
 
 
 def parse_date_fields(data: dict, fields: list[str]) -> None:
+    """
+    Вспомогательная функция:
+    Конвектирует строковые поля с датами из ответа API в объекты
+    datetime, так как asyncpg требует строгой типизации при вставке в БД
+    """
     for field in fields:
         data[field] = datetime.fromisoformat(data[field])
 
 
 def build_page_url(base_url: str, page: int) -> str:
+    """
+    Вспомогательная функция:
+    Формирует URL для пагинации (next/previous), изменяя номер
+    страницы в исходном запросе клиента.
+    """
     parsed = urlparse(base_url)
     params = parse_qs(parsed.query)
     params["page"] = [str(page)]
@@ -44,6 +54,11 @@ def build_page_url(base_url: str, page: int) -> str:
 
 
 class SyncUsecase:
+    """
+    Инкрементальная синхронизация событий и площадок с внешним API.
+    Обновляет синхронизации в БД.
+    """
+
     def __init__(
         self,
         client: EventsProviderClient,
@@ -109,6 +124,11 @@ def create_sync_usecase(db: AsyncSession) -> SyncUsecase:
 
 
 class ListEventsUsecase:
+    """
+    Возвращает постраничный список событий с фильтрацией по дате
+    и формированием ссылок пагинации.
+    """
+
     def __init__(self, events: EventRepository):
         self.events = events
 
@@ -134,6 +154,11 @@ def create_list_events_usecase(db: AsyncSession) -> ListEventsUsecase:
 
 
 class GetEventUsecase:
+    """
+    Возращает детали события по ID.
+    Бросает EventNotFoundError, если события нет.
+    """
+
     def __init__(self, events: EventRepository):
         self.events = events
 
@@ -151,6 +176,11 @@ def create_get_event_usecase(db: AsyncSession) -> GetEventUsecase:
 
 
 class GetEventSeatsUsecase:
+    """
+    Возвращает свободные места. Кэширует результат на 30сек.
+    Проверяет статус перед запросом к API.
+    """
+
     def __init__(self, events: EventRepository, client: EventsProviderClient, cache: TtlCache):
         self.events = events
         self.client = client
@@ -180,6 +210,11 @@ def create_get_event_seats_usecase(db: AsyncSession) -> GetEventSeatsUsecase:
 
 
 class CreateTicketUsecase:
+    """
+    Регистрирует участника. Проверяет статус события и дедлайн,
+    делает запрос во внешний API и сохраняет билет в БД.
+    """
+
     def __init__(
         self, events: EventRepository, tickets: TicketRepository, client: EventsProviderClient
     ):
@@ -225,6 +260,10 @@ def create_ticket_usecase(db: AsyncSession) -> CreateTicketUsecase:
 
 
 class CancelTicketUsecase:
+    """
+    Отменяет регистрацию. Удаляет билет из БД и вызывает отмену во внешнем API.
+    """
+
     def __init__(self, tickets: TicketRepository, client: EventsProviderClient):
         self.tickets = tickets
         self.client = client
