@@ -4,10 +4,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.usecases import create_get_event_seats_usecase
 from src.api.schemas import EventDetail, EventsListResponse
 from src.db.session import get_db
 from src.services import create_get_event_usecase, create_list_events_usecase
-from src.services.exceptions import EventNotFoundError
+from src.services.exceptions import EventNotFoundError, EventNotPublishedError
 
 router = APIRouter()
 
@@ -38,3 +39,18 @@ async def get_event(event_id: uuid.UUID, db: Annotated[AsyncSession, Depends(get
             status_code=status.HTTP_404_NOT_FOUND, detail="Событие не найдено"
         ) from e
     return result
+
+
+@router.get("/events/{event_id}/seats")
+async def get_event_seats(event_id: uuid.UUID, db: Annotated[AsyncSession, Depends(get_db)]):
+    usecase = create_get_event_seats_usecase(db=db)
+    try:
+        return await usecase.do(event_id=str(event_id))
+    except EventNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Событие не найдено"
+        ) from e
+    except EventNotPublishedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Событие не опубликовано"
+        ) from e
