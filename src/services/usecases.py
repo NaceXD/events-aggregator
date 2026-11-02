@@ -4,12 +4,12 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from repositories.sqlalchemy_repositories import SqlAlchemyTicketRepository
 from src.api.schemas import TicketCreate
 from src.repositories import (
     SqlAlchemyEventRepository,
     SqlAlchemyPlaceRepository,
     SqlAlchemySyncStateRepository,
+    SqlAlchemyTicketRepository,
 )
 from src.repositories.protocols import (
     EventRepository,
