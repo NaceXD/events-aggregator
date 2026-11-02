@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,8 +36,9 @@ class SqlAlchemyEventRepository:
 
     async def list(self, date_from: str | None, page: int, page_size: int) -> Sequence[Event]:
         query = select(Event)
-        if date_from is not None:
-            query = query.where(Event.event_time >= date_from)
+        if date_from:
+            date_from_dt = datetime.fromisoformat(date_from)
+            query = query.where(Event.event_time >= date_from_dt)
         query = query.offset((page - 1) * page_size).limit(page_size)
         result = await self.session.execute(query)
         return result.scalars().all()
@@ -44,7 +46,8 @@ class SqlAlchemyEventRepository:
     async def count(self, date_from: str | None) -> int:
         query = select(func.count(Event.id))
         if date_from:
-            query = query.where(Event.event_time >= date_from)
+            date_from_dt = datetime.fromisoformat(date_from)
+            query = query.where(Event.event_time >= date_from_dt)
         result = await self.session.execute(query)
         return result.scalar_one()
 
