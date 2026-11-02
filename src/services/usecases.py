@@ -11,9 +11,11 @@ from src.repositories import (
 )
 from src.repositories.protocols import EventRepository, PlaceRepository, SyncStateRepository
 from src.services import EventsPaginator, EventsProviderClient
-from src.services.exceptions import EventNotFoundError
+from src.services.cache import TtlCache
+from src.services.exceptions import EventNotFoundError, EventNotPublishedError
 
 logger = logging.getLogger(__name__)
+seats_cache = TtlCache()
 
 
 def parse_date_fields(data: dict, fields: list[str]) -> None:
@@ -134,3 +136,32 @@ class GetEventUsecase:
 def create_get_event_usecase(db: AsyncSession) -> GetEventUsecase:
     events_repo = SqlAlchemyEventRepository(session=db)
     return GetEventUsecase(events=events_repo)
+
+
+class GetEventSeatsUsecase:
+    def __init__(self, events: EventRepository, client: EventsProviderClient, cache: TtlCache):
+        self.events = events
+        self.client = client
+        self.cache = cache
+
+    async def do(self, event_id: str):
+        event = await self.events.get(event_id=event_id)
+        if not event:
+            raise EventNotFoundError
+
+        if event.status != "published":
+            raise EventNotPublishedError
+
+        cached_seats = self.cache.get(event_id)
+        if cached_seats is not None:
+            return {"event_id": event_id, "available_seats": cached_seats}
+
+        data = await self.client.get_seats(event_id)
+        self.cache.set(event_id, data["seats"])
+        return {"event_id": event_id, "available_seats": data["seats"]}
+
+
+def create_get_event_seats_usecase(db: AsyncSession) -> GetEventSeatsUsecase:
+    events_repo = SqlAlchemyEventRepository(session=db)
+    client = EventsProviderClient()
+    return GetEventSeatsUsecase(events=events_repo, client=client, cache=seats_cache)
