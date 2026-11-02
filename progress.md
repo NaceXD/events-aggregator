@@ -33,14 +33,14 @@
     - [+] Реализация фонового воркера в `lifespan` (запуск раз в сутки)
     - [+] Логирование процесса синхронизации и ошибок
 
-- [ ] Этап 5. Events endpoints
+- [+] Этап 5. Events endpoints
      - [+] Репозиторий: добавить `count` в `EventRepository`
     - [+] Pydantic-схемы для событий (Event, Place, PaginatedResponse)
     - [+] Usecase: получение списка событий с пагинацией и фильтром `date_from`
     - [+] Эндпоинт `GET /api/events` (list, пагинация, `count`, `next`, `previous`)
     - [+] Usecase: получение деталей события по ID
     - [+] Эндпоинт `GET /api/events/{event_id}` (detail)
-    - [ ] Эндпоинт `GET /api/events/{event_id}/seats` (с кэшем 30 сек в памяти)
+    - [+] Эндпоинт `GET /api/events/{event_id}/seats` (с кэшем 30 сек в памяти)
 
 - [ ] Этап 6. Tickets endpoints
 - [ ] Этап 7. Полировка

@@ -4,15 +4,27 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from repositories.sqlalchemy_repositories import SqlAlchemyTicketRepository
+from src.api.schemas import TicketCreate
 from src.repositories import (
     SqlAlchemyEventRepository,
     SqlAlchemyPlaceRepository,
     SqlAlchemySyncStateRepository,
 )
-from src.repositories.protocols import EventRepository, PlaceRepository, SyncStateRepository
+from src.repositories.protocols import (
+    EventRepository,
+    PlaceRepository,
+    SyncStateRepository,
+    TicketRepository,
+)
 from src.services import EventsPaginator, EventsProviderClient
 from src.services.cache import TtlCache
-from src.services.exceptions import EventNotFoundError, EventNotPublishedError
+from src.services.exceptions import (
+    EventNotFoundError,
+    EventNotPublishedError,
+    RegistrationDeadlinePassedError,
+    TicketNotFoundError,
+)
 
 logger = logging.getLogger(__name__)
 seats_cache = TtlCache()
@@ -165,3 +177,68 @@ def create_get_event_seats_usecase(db: AsyncSession) -> GetEventSeatsUsecase:
     events_repo = SqlAlchemyEventRepository(session=db)
     client = EventsProviderClient()
     return GetEventSeatsUsecase(events=events_repo, client=client, cache=seats_cache)
+
+
+class CreateTicketUsecase:
+    def __init__(
+        self, events: EventRepository, tickets: TicketRepository, client: EventsProviderClient
+    ):
+        self.events = events
+        self.tickets = tickets
+        self.client = client
+
+    async def do(self, request: TicketCreate) -> dict:
+        event = await self.events.get(event_id=(str(request.event_id)))
+        if event is None:
+            raise EventNotFoundError
+        if event.status != "published":
+            raise EventNotPublishedError
+        if datetime.now(UTC) > event.registration_deadline:
+            raise RegistrationDeadlinePassedError
+
+        response = await self.client.register(
+            event_id=str(request.event_id),
+            first_name=request.first_name,
+            last_name=request.last_name,
+            email=request.email,
+            seat=request.seat,
+        )
+        await self.tickets.create(
+            {
+                "ticket_id": response["ticket_id"],
+                "event_id": request.event_id,
+                "first_name": request.first_name,
+                "last_name": request.last_name,
+                "email": request.email,
+                "seat": request.seat,
+                "created_at": datetime.now(UTC),
+            }
+        )
+        return {"ticket_id": response["ticket_id"]}
+
+
+def create_ticket_usecase(db: AsyncSession) -> CreateTicketUsecase:
+    event_repo = SqlAlchemyEventRepository(session=db)
+    ticket_repo = SqlAlchemyTicketRepository(session=db)
+    client = EventsProviderClient()
+    return CreateTicketUsecase(events=event_repo, tickets=ticket_repo, client=client)
+
+
+class CancelTicketUsecase:
+    def __init__(self, tickets: TicketRepository, client: EventsProviderClient):
+        self.tickets = tickets
+        self.client = client
+
+    async def do(self, ticket_id: str) -> dict:
+        ticket = await self.tickets.get_by_ticket_id(ticket_id=ticket_id)
+        if ticket is None:
+            raise TicketNotFoundError
+        await self.client.unregister(event_id=str(ticket.event_id), ticket_id=ticket_id)
+        await self.tickets.delete(ticket_id=ticket_id)
+        return {"success": True}
+
+
+def cancel_ticket_usecase(db: AsyncSession) -> CancelTicketUsecase:
+    ticket_repo = SqlAlchemyTicketRepository(session=db)
+    client = EventsProviderClient()
+    return CancelTicketUsecase(tickets=ticket_repo, client=client)
