@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import Event, Place, SyncState, Ticket
@@ -40,6 +40,13 @@ class SqlAlchemyEventRepository:
         query = query.offset((page - 1) * page_size).limit(page_size)
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def count(self, date_from: str | None) -> int:
+        query = select(func.count(Event.id))
+        if date_from:
+            query = query.where(Event.event_time >= date_from)
+        result = await self.session.execute(query)
+        return result.scalar_one()
 
 
 class SqlAlchemyTicketRepository:
