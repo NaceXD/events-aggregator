@@ -32,7 +32,7 @@ class SqlAlchemyEventRepository:
 
     async def upsert(self, event_data: dict) -> None:
         await self.session.merge(Event(**event_data))
-        await self.session.commit()
+        await self.session.flush()
 
     async def list(self, date_from: str | None, page: int, page_size: int) -> Sequence[Event]:
         query = select(Event)

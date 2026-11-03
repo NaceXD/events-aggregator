@@ -18,11 +18,25 @@ async def test_get_events(client):
     mock_response.json.return_value = {"result": [], "next": None}
     client.client.get.return_value = mock_response
 
-    result = await client.get_events(changed_at="2026-01-01")
+    results = await client.get_events(changed_at="2026-01-01")
 
-    assert result == {"result": [], "next": None}
+    assert results == {"result": [], "next": None}
     client.client.get.assert_called_once_with(
-        f"{client.base_url}/api/events/?changed_at=2026-01-01"
+        url=f"{client.base_url}/api/events/", params={"changed_at": "2026-01-01"}
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_events_with_cursor(client):
+    mock_response = Mock()
+    mock_response.json.return_value = {"result": [], "next": None}
+    client.client.get.return_value = mock_response
+    results = await client.get_events(changed_at="2026-01-01", cursor="abc123")
+
+    assert results == {"result": [], "next": None}
+    client.client.get.assert_called_once_with(
+        url=f"{client.base_url}/api/events/",
+        params={"changed_at": "2026-01-01", "cursor": "abc123"},
     )
 
 

@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas import TicketCreate
+from src.db import EventStatus
 from src.repositories import (
     SqlAlchemyEventRepository,
     SqlAlchemyPlaceRepository,
@@ -191,7 +192,7 @@ class GetEventSeatsUsecase:
         if not event:
             raise EventNotFoundError
 
-        if event.status != "published":
+        if event.status != EventStatus.PUBLISHED:
             raise EventNotPublishedError
 
         cached_seats = self.cache.get(event_id)
@@ -226,7 +227,7 @@ class CreateTicketUsecase:
         event = await self.events.get(event_id=(str(request.event_id)))
         if event is None:
             raise EventNotFoundError
-        if event.status != "published":
+        if event.status != EventStatus.PUBLISHED:
             raise EventNotPublishedError
         if datetime.now(UTC) > event.registration_deadline:
             raise RegistrationDeadlinePassedError
