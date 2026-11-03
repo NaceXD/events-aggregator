@@ -15,3 +15,7 @@ class RegistrationDeadlinePassedError(Exception):
 
 class TicketNotFoundError(Exception):
     """Вызывается, если Ticket не найден"""
+
+
+class ProviderError(Exception):
+    """Вызываеься, когда внешний Events Provider API возвращает ошибку"""
